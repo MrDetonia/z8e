@@ -1,0 +1,3 @@
+/* settings and configuration from cmake */
+#define z8e_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define z8e_VERSION_MINOR @PROJECT_VERSION_MINOR@
