@@ -27,6 +27,11 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_ADD_HL_BC:
+            SetHL(BC2word());
+            AddR(11);
+            break;
+
         case OP_LD_A_BCa:
             RG_A = GetRAMbyte(BC2word());
             AddR(7);
@@ -52,6 +57,11 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_ADD_HL_DE:
+            SetHL(DE2word());
+            AddR(11);
+            break;
+
         case OP_LD_E_N:
             RG_E = GetRAMbyte(GetPC(1));
             AddR(7);
@@ -70,6 +80,11 @@ void exec(void) {
         case OP_LD_H_N:
             RG_H = GetRAMbyte(GetPC(1));
             AddR(7);
+            break;
+
+        case OP_ADD_HL_HL:
+            SetHL(HL2word());
+            AddR(11);
             break;
 
         case OP_LD_HL_NNa:
@@ -95,6 +110,11 @@ void exec(void) {
         case OP_LD_HLa_N:
             SetRAMbyte(HL2word(), GetRAMbyte(GetPC(1)));
             AddR(10);
+            break;
+
+        case OP_ADD_HL_SP:
+            SetHL(RG_SP);
+            AddR(11);
             break;
 
         case OP_LD_A_NNa:
@@ -416,6 +436,46 @@ void exec(void) {
             break;
 
         case OP_LD_A_A:
+            AddR(4);
+            break;
+
+        case OP_ADD_A_B:
+            AddA(RG_B);
+            AddR(4);
+            break;
+
+        case OP_ADD_A_C:
+            AddA(RG_C);
+            AddR(4);
+            break;
+
+        case OP_ADD_A_D:
+            AddA(RG_D);
+            AddR(4);
+            break;
+
+        case OP_ADD_A_E:
+            AddA(RG_E);
+            AddR(4);
+            break;
+
+        case OP_ADD_A_H:
+            AddA(RG_H);
+            AddR(4);
+            break;
+
+        case OP_ADD_A_L:
+            AddA(RG_L);
+            AddR(4);
+            break;
+
+        case OP_ADD_A_HLa:
+            AddA(GetRAMbyte(HL2word()));
+            AddR(7);
+            break;
+
+        case OP_ADD_A_A:
+            AddA(RG_A);
             AddR(4);
             break;
     }

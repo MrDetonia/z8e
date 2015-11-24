@@ -55,6 +55,7 @@ void SetHL(word nn);
 
 /* common register increment/addition functions */
 void AddR(byte n);
+void AddA(byte n);
 word GetPC(word inc);
 void AddPC(word nn);
 

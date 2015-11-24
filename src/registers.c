@@ -22,22 +22,26 @@ word HL2word(void) {
 }
 
 void SetBC(word nn) {
-    RG_B = (nn & 0xff00) >> BYTELEN;
-    RG_C = nn & 0x00ff;
+    RG_B = (nn & MAXBYTE << BYTELEN) >> BYTELEN;
+    RG_C = nn & MAXBYTE;
 }
 
 void SetDE(word nn) {
-    RG_D = (nn & 0xff00) >> BYTELEN;
-    RG_E = nn & 0x00ff;
+    RG_D = (nn & MAXBYTE << BYTELEN) >> BYTELEN;
+    RG_E = nn & MAXBYTE;
 }
 
 void SetHL(word nn) {
-    RG_H = (nn & 0xff00) >> BYTELEN;
-    RG_L = nn & 0x00ff;
+    RG_H = (nn & MAXBYTE << BYTELEN) >> BYTELEN;
+    RG_L = nn & MAXBYTE;
 }
 
 void AddR(byte n) {
-    RG_R = (RG_R + n) & 0xff;
+    RG_R = (RG_R + n) & MAXBYTE;
+}
+
+void AddA(byte n) {
+    RG_A = (RG_A + n) & MAXBYTE;
 }
 
 word GetPC(word inc) {
@@ -47,5 +51,5 @@ word GetPC(word inc) {
 }
 
 void AddPC(word nn) {
-    RG_PC = (RG_PC + nn) & 0xffff;
+    RG_PC = (RG_PC + nn) & MAXWORD;
 }
