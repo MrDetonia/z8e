@@ -28,7 +28,7 @@ void exec(void) {
             break;
 
         case OP_ADD_HL_BC:
-            SetHL(BC2word(), 0);
+            SetHL(BC2word());
             AddR(11);
             break;
 
@@ -58,7 +58,7 @@ void exec(void) {
             break;
 
         case OP_ADD_HL_DE:
-            SetHL(DE2word(), 0);
+            SetHL(DE2word());
             AddR(11);
             break;
 
@@ -83,7 +83,7 @@ void exec(void) {
             break;
 
         case OP_ADD_HL_HL:
-            SetHL(HL2word(), 0);
+            SetHL(HL2word());
             AddR(11);
             break;
 
@@ -113,7 +113,7 @@ void exec(void) {
             break;
 
         case OP_ADD_HL_SP:
-            SetHL(RG_SP, 0);
+            SetHL(RG_SP);
             AddR(11);
             break;
 
