@@ -40,7 +40,11 @@ void AddR(byte n) {
     RG_R = (RG_R + n) & MAXBYTE;
 }
 
-void AddA(byte n) {
+void AddA(byte n, int carry) {
+    if(carry) {
+        if((RG_A + n) & MAXBYTE != RG_A + n) RG_F |= 0b1000000;
+        else RG_F &= 0b01111111;
+    }
     RG_A = (RG_A + n) & MAXBYTE;
 }
 
