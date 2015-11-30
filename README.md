@@ -14,7 +14,7 @@ This software provides a graphical interface to program an emulated ZiLOG Z80 Mi
 ### Requirements
 - CMake version >= 2.8.11
 - Qt5
-- C++ Toolchain such as GNU build tools for Linux, or MinGW/Cygwin for Windows
+- C Toolchain such as GNU build tools for Linux, or MinGW/Cygwin for Windows
 
 ### Build Process
 #### Linux
