@@ -555,7 +555,7 @@ void exec(void) {
             break;
 
         case OP_SUB_A_A:
-            Add(-1 * RG_A, 0);
+            AddA(-1 * RG_A, 0);
             AddR(4);
             break;
 
