@@ -519,6 +519,87 @@ void exec(void) {
             AddR(4);
             break;
 
+        case OP_SUB_A_B:
+            AddA(-1 * RG_B, 0);
+            AddR(4);
+            break;
+
+        case OP_SUB_A_C:
+            AddA(-1 * RG_C, 0);
+            AddR(4);
+            break;
+
+        case OP_SUB_A_D:
+            AddA(-1 * RG_D, 0);
+            AddR(4);
+            break;
+
+        case OP_SUB_A_E:
+            AddA(-1 * RG_E, 0);
+            AddR(4);
+            break;
+
+        case OP_SUB_A_H:
+            AddA(-1 * RG_H, 0);
+            AddR(4);
+            break;
+
+        case OP_SUB_A_L:
+            AddA(-1 * RG_L, 0);
+            AddR(4);
+            break;
+
+        case OP_SUB_A_HLa:
+            AddA(-1 * GetRAMbyte(HL2word()), 0);
+            AddR(7);
+            break;
+
+        case OP_SUB_A_A:
+            Add(-1 * RG_A, 0);
+            AddR(4);
+            break;
+
+
+        case OP_SBC_A_B:
+            AddA(-1 * RG_B, 1);
+            AddR(4);
+            break;
+
+        case OP_SBC_A_C:
+            AddA(-1 * RG_C, 1);
+            AddR(4);
+            break;
+
+        case OP_SBC_A_D:
+            AddA(-1 * RG_D, 1);
+            AddR(4);
+            break;
+
+        case OP_SBC_A_E:
+            AddA(-1 * RG_E, 1);
+            AddR(4);
+            break;
+
+        case OP_SBC_A_H:
+            AddA(-1 * RG_H, 1);
+            AddR(4);
+            break;
+
+        case OP_SBC_A_L:
+            AddA(-1 * RG_L, 1);
+            AddR(4);
+            break;
+
+        case OP_SBC_A_HLa:
+            AddA(-1 * GetRAMbyte(HL2word()), 1);
+            AddR(7);
+            break;
+
+        case OP_SBC_A_A:
+            AddA(-1 * RG_A, 1);
+            AddR(4);
+            break;
+
         case OP_ADD_A_N:
             AddA(GetRAMbyte(GetPC(1)), 0);
             AddR(7);
