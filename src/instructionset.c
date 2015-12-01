@@ -640,6 +640,46 @@ void exec(void) {
             AddR(4);
             break;
 
+        case OP_XOR_B:
+            RG_A ^= RG_B;
+            AddR(4);
+            break;
+
+        case OP_XOR_C:
+            RG_A ^= RG_C;
+            AddR(4);
+            break;
+
+        case OP_XOR_D:
+            RG_A ^= RG_D;
+            AddR(4);
+            break;
+
+        case OP_XOR_E:
+            RG_A ^= RG_E;
+            AddR(4);
+            break;
+
+        case OP_XOR_H:
+            RG_A ^=  RG_H;
+            AddR(4);
+            break;
+
+        case OP_XOR_L:
+            RG_A ^= RG_L;
+            AddR(4);
+            break;
+
+        case OP_XOR_HLa:
+            RG_A ^= GetRAMbyte(HL2word());
+            AddR(7);
+            break;
+
+        case OP_XOR_A:
+            RG_A ^= RG_A;
+            AddR(4);
+            break;
+
         case OP_ADD_A_N:
             AddA(GetRAMbyte(GetPC(1)), 0);
             AddR(7);
@@ -647,6 +687,16 @@ void exec(void) {
 
         case OP_ADC_A_N:
             AddA(GetRAMbyte(GetPC(1)), 1);
+            AddR(7);
+            break;
+
+        case OP_AND_N:
+            RG_A &= GetRAMbyte(GetPC(1));
+            AddR(7);
+            break;
+
+        case OP_XOR_N:
+            RG_A ^= GetRAMbyte(GetPC(1));
             AddR(7);
             break;
     }
