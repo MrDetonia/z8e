@@ -24,14 +24,15 @@ This software provides a graphical interface to program an emulated ZiLOG Z80 Mi
 - Compile with `make`
 
 #### Windows
-INSTRUCTIONS COMING SOON
+- Ensure you have git, cmake, and a C compiler such as MinGW installed.
+- Clone this repository `git clone git@github.com:MrDetonia/z8e.git`
+- Open a command prompt inside the build directory.
+- Prepare build using cmake `cmake ..` Note that cmake on windows defaults to NMake generation. To switch it, use the -G option e.g. `cmake -G "MinGW Makefiles" ..`
+- Compile using whichever maketool you selected with cmake.
 
 ### Installing
 #### Linux
 Assuming you are using makefiles a simple `make install` should install the binary in your specified install path (default: `/usr/bin`). Otherwise consult the install method for whatever build method you have told cmake to use.
-
-#### Windows
-INSTRUCTIONS COMING SOON
 
 ## License
 Copyright 2015, Zac Herd.  
