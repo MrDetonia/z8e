@@ -744,5 +744,9 @@ void exec(void) {
             RG_A |= GetRAMbyte(GetPC(1));
             AddR(7);
             break;
+
+        default:
+            /* TODO: complain here */
+            break;
     }
 }
