@@ -9,6 +9,15 @@
 
 #include "registers.h"
 
+byte getFlag(const byte flag) {
+    return RG_F & (0b1 << flag);
+}
+
+void setFlag(const byte flag, byte val) {
+    byte bitmask = (val & 0b1) << flag;
+    RG_F = (RG_F & ~(0b1 << flag)) & bitmask;
+}
+
 word BC2word(void) {
     return (RG_B << BYTELEN) | RG_C;
 }

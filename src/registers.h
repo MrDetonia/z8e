@@ -43,6 +43,24 @@ word RG_IY; /* index register */
 word RG_SP; /* stack pointer */
 word RG_PC; /* program counter */
 
+/* flags */
+enum {
+    FLAG_C = 0,
+    FLAG_N,
+    FLAG_PV,
+    FLAG_F3,
+    FLAG_H,
+    FLAG_F5,
+    FLAG_Z,
+    FLAG_S
+} flags;
+
+/* get value of flag */
+byte getFlag(const byte flag);
+
+/* set flag */
+void setFlag(const byte flag, byte val);
+
 /* functions to get multiple registers as words */
 word BC2word(void);
 word DE2word(void);

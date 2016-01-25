@@ -1,6 +1,53 @@
 #include "instructionset.h"
 
 /*
+ * Generic function wrappers for operations
+ */
+
+void op_add(byte* src, byte* dst, int carry) {
+    /* set carry flag */
+    if((*dst + *src) & MAXBYTE != *dst + *src) setFlag(FLAG_C, 1);
+    else setFlag(FLAG_C, 0);
+
+    /* perform operation */
+    *dst = (*dst + *src) & MAXBYTE;
+    if(carry) *dst += getFlag(FLAG_C);
+
+    /* check if result zero */
+    if(*dst == 0) setFlag(FLAG_Z, 1);
+    else setFlag(FLAG_Z, 0);
+
+    /* operation not subtraction, clear N */
+    setFlag(FLAG_N, 0);
+
+    /* set sign flag */
+    setFlag(FLAG_S, (*dst & 0b10000000) >> 8);
+
+    /* create bit copies in F3/5 */
+    setFlag(FLAG_F3, (*dst & 0b00000100) >> 3);
+    setFlag(FLAG_F5, (*dst & 0b00010000) >> 5);
+}
+
+void op_ld(byte* src, byte* dst) {
+    /* perform operation */
+    *dst = *src;
+
+    /* set zero flag */
+    if(*dst == 0) setFlag(FLAG_Z, 1);
+    else setFlag(FLAG_Z, 0);
+
+    /* operation not subtraction, clear N */
+    setFlag(FLAG_N, 0);
+
+    /* set sign flag */
+    setFlag(FLAG_S, (*dst & 0b10000000) >> 8);
+
+    /* create bit copies in F3/5 */
+    setFlag(FLAG_F3, (*dst & 0b00000100) >> 3);
+    setFlag(FLAG_F5, (*dst & 0b00010000) >> 5);
+}
+
+/*
  * Executes a single instruction at the current program counter.
  * Increases the program counter and cycle count registers somewhat.
  * Uses a large switch statement as this is turned into a jump table
