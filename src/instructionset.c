@@ -11,7 +11,7 @@ void op_add(byte* src, byte* dst, int carry) {
 
     /* perform operation */
     *dst = (*dst + *src) & MAXBYTE;
-    if(carry) *dst += getFlag(FLAG_C);
+    if(carry) *dst++;
 
     /* check if result zero */
     if(*dst == 0) setFlag(FLAG_Z, 1);
@@ -28,6 +28,30 @@ void op_add(byte* src, byte* dst, int carry) {
     setFlag(FLAG_F5, (*dst & 0b00010000) >> 5);
 }
 
+void op_add16(word* src, word* dst, int carry) {
+    /* set carry flag */
+    if((*dst + *src) & MAXWORD != *dst + * src) setFlag(FLAG_C, 1);
+    else setFlag(FLAG_C, 0);
+
+    /* perform operation */
+    *dst = (*dst + *src) & MAXWORD;
+    if(carry) *dst++;
+
+    /* check if result zero */
+    if(*dst == 0) setFlag(FLAG_Z, 1);
+    else setFlag(FLAG_Z, 0);
+
+    /* operation not subtraction */
+    setFlag(FLAG_N, 0);
+
+    /* set sign flag */
+    setFlag(FLAG_S, (*dst & 0b1000000000000000) >> 16);
+
+    /* create bit copies in F3/5 */
+    setFlag(FLAG_F3, (*dst & 0b0000000000000100) >> 3);
+    setFlag(FLAG_F5, (*dst & 0b0000000000010000) >> 5);
+}
+
 void op_ld(byte* src, byte* dst) {
     /* perform operation */
     *dst = *src;
@@ -38,6 +62,41 @@ void op_ld(byte* src, byte* dst) {
 
     /* operation not subtraction, clear N */
     setFlag(FLAG_N, 0);
+
+    /* set sign flag */
+    setFlag(FLAG_S, (*dst & 0b10000000) >> 8);
+
+    /* create bit copies in F3/5 */
+    setFlag(FLAG_F3, (*dst & 0b00000100) >> 3);
+    setFlag(FLAG_F5, (*dst & 0b00010000) >> 5);
+}
+
+void op_ld16(word* src, word* dst) {
+    /* perform operation */
+    *dst = *src;
+
+    /* set zero flag */
+    if(*dst == 0) setFlag(FLAG_Z, 1);
+    else setFlag(FLAG_Z, 0);
+
+    /* operation not subtraction, clear N */
+    setFlag(FLAG_N, 0);
+
+    /* set sign flag */
+    setFlag(FLAG_S, (*dst & 0b1000000000000000) >> 16);
+
+    /* create bit copies in F3/5 */
+    setFlag(FLAG_F3, (*dst & 0b0000000000000100) >> 3);
+    setFlag(FLAG_F5, (*dst & 0b0000000000010000) >> 5);
+}
+
+void op_sub(byte* src, byte* dst, int carry) {
+    /* perform operation*/
+    *dst -= *src;
+    if(carry) *dst--;
+
+    /* operation is subtraction, set N */
+    setFlag(FLAG_N, 1);
 
     /* set sign flag */
     setFlag(FLAG_S, (*dst & 0b10000000) >> 8);
@@ -60,386 +119,392 @@ void exec(void) {
             break;
 
         case OP_LD_BC_NN:
-            SetBC(GetRAMword(GetPC(2)));
+            op_ld16(&RG_BC, (word*)&RAM[GetPC(2)]);
             AddR(10);
             break;
 
         case OP_LD_BCa_NN:
-            SetRAMword(BC2word(), GetRAMword(GetPC(2)));
+            op_ld16((word*)&RAM[RG_BC], (word*)&RAM[GetPC(2)]);
             AddR(7);
             break;
 
         case OP_LD_B_N:
-            RG_B = GetRAMbyte(GetPC(1));
+            op_ld(RG_B, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_ADD_HL_BC:
-            SetHL(BC2word());
+            op_add16(&RG_HL, &RG_BC, 0);
             AddR(11);
             break;
 
         case OP_LD_A_BCa:
-            RG_A = GetRAMbyte(BC2word());
+            op_ld(RG_A, &RAM[BC2word()]);
             AddR(7);
             break;
 
         case OP_LD_C_N:
-            RG_C = GetRAMbyte(GetPC(1));
+            op_ld(RG_C, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_LD_DE_NN:
-            SetDE(GetRAMword(GetPC(2)));
+            op_ld16(&RG_DE, (word*)&RAM[GetPC(2)]);
             AddR(10);
             break;
 
         case OP_LD_DEa_A:
-            SetRAMword(DE2word(), RG_A);
+            op_ld(&RAM[RG_DE], RG_A);
             AddR(7);
             break;
 
         case OP_LD_D_N:
-            RG_D = GetRAMbyte(GetPC(1));
+            op_ld(RG_D, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_ADD_HL_DE:
-            SetHL(DE2word());
+            op_add16(&RG_HL, &RG_DE, 0);
             AddR(11);
             break;
 
         case OP_LD_E_N:
-            RG_E = GetRAMbyte(GetPC(1));
+            op_ld(RG_E, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_LD_HL_NN:
-            SetHL(GetRAMword(GetPC(2)));
+            op_ld16(&RG_HL, (word*)&RAM[GetPC(2)]);
             AddR(10);
             break;
 
         case OP_LD_NNa_HL:
-            SetRAMword(GetRAMword(GetPC(2)), HL2word());
+            op_ld16((word*)&RAM[GetRAMword(GetPC(2))], &RG_HL);
             AddR(16);
             break;
 
         case OP_LD_H_N:
-            RG_H = GetRAMbyte(GetPC(1));
+            op_ld(RG_H, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_ADD_HL_HL:
-            SetHL(HL2word());
+            op_add16(&RG_HL, &RG_HL, 0);
             AddR(11);
             break;
 
         case OP_LD_HL_NNa:
-            SetHL(GetRAMword(GetRAMword(GetPC(2))));
+            op_ld16(&RG_HL, (word*)&RAM[GetRAMword(GetPC(2))]);
             AddR(16);
             break;
 
         case OP_LD_L_N:
-            RG_L = GetRAMbyte(GetPC(1));
+            op_ld(RG_L, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_LD_SP_NN:
-            RG_SP = GetRAMword(GetPC(2));
+            op_ld16(&RG_SP, (word*)&RAM[GetPC(2)]);
             AddR(10);
             break;
 
         case OP_LD_NNa_A:
-            SetRAMbyte(GetRAMword(GetPC(2)), RG_A);
+            op_ld(&RAM[GetRAMword(GetPC(2))], RG_A);
             AddR(13);
             break;
 
         case OP_LD_HLa_N:
-            SetRAMbyte(HL2word(), GetRAMbyte(GetPC(1)));
+            op_ld(&RAM[RG_HL], &RAM[GetPC(1)]);
             AddR(10);
             break;
 
         case OP_ADD_HL_SP:
-            SetHL(RG_SP);
+            op_add16(&RG_HL, &RG_SP, 0);
             AddR(11);
             break;
 
         case OP_LD_A_NNa:
-            RG_A = GetRAMbyte(GetRAMword(GetPC(2)));
+            op_ld(RG_A, &RAM[GetRAMword(GetPC(2))]);
             AddR(13);
             break;
 
         case OP_LD_A_N:
-            RG_A = GetRAMbyte(GetPC(1));
+            op_ld(RG_A, &RAM[GetPC(1)]);
             AddR(7);
             break;
 
         case OP_LD_B_B:
+            op_ld(RG_B, RG_B);
             AddR(4);
             break;
 
         case OP_LD_B_C:
-            RG_B = RG_C;
+            op_ld(RG_B, RG_C);
             AddR(4);
             break;
 
         case OP_LD_B_D:
-            RG_B = RG_D;
+            op_ld(RG_B, RG_D);
             AddR(4);
             break;
 
         case OP_LD_B_E:
-            RG_B = RG_E;
+            op_ld(RG_B, RG_E);
             AddR(4);
             break;
 
         case OP_LD_B_H:
-            RG_B = RG_H;
+            op_ld(RG_B, RG_H);
             AddR(4);
             break;
 
         case OP_LD_B_L:
-            RG_B = RG_L;
+            op_ld(RG_B, RG_L);
             AddR(4);
             break;
 
         case OP_LD_B_HLa:
-            RG_B = GetRAMbyte(HL2word());
+            op_ld(RG_B, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_B_A:
-            RG_B = RG_A;
+            op_ld(RG_B, RG_A);
             AddR(4);
             break;
 
         case OP_LD_C_B:
-            RG_C = RG_B;
+            op_ld(RG_C, RG_B);
             AddR(4);
             break;
 
         case OP_LD_C_C:
+            op_ld(RG_C, RG_C);
             AddR(4);
             break;
 
         case OP_LD_C_D:
-            RG_C = RG_D;
+            op_ld(RG_C, RG_D);
             AddR(4);
             break;
 
         case OP_LD_C_E:
-            RG_C = RG_E;
+            op_ld(RG_C, RG_E);
             AddR(4);
             break;
 
         case OP_LD_C_H:
-            RG_C = RG_H;
+            op_ld(RG_C, RG_H);
             AddR(4);
             break;
 
         case OP_LD_C_L:
-            RG_C = RG_L;
+            op_ld(RG_C, RG_L);
             AddR(4);
             break;
 
         case OP_LD_C_HLa:
-            RG_C = GetRAMbyte(HL2word());
+            op_ld(RG_C, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_C_A:
-            RG_C = RG_A;
+            op_ld(RG_C, RG_A);
             AddR(4);
             break;
 
         case OP_LD_D_B:
-            RG_D = RG_B;
+            op_ld(RG_D, RG_B);
             AddR(4);
             break;
 
         case OP_LD_D_C:
-            RG_D = RG_C;
+            op_ld(RG_D, RG_C);
             AddR(4);
             break;
 
         case OP_LD_D_D:
+            op_ld(RG_D, RG_D);
             AddR(4);
             break;
 
         case OP_LD_D_E:
-            RG_D = RG_E;
+            op_ld(RG_D, RG_E);
             AddR(4);
             break;
 
         case OP_LD_D_H:
-            RG_D = RG_H;
+            op_ld(RG_D, RG_H);
             AddR(4);
             break;
 
         case OP_LD_D_L:
-            RG_D = RG_L;
+            op_ld(RG_D, RG_L);
             AddR(4);
             break;
 
         case OP_LD_D_HLa:
-            RG_D = GetRAMbyte(HL2word());
+            op_ld(RG_D, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_D_A:
-            RG_D = RG_A;
+            op_ld(RG_D, RG_A);
             AddR(4);
             break;
 
         case OP_LD_E_B:
-            RG_E = RG_B;
+            op_ld(RG_E, RG_B);
             AddR(4);
             break;
 
         case OP_LD_E_C:
-            RG_E = RG_C;
+            op_ld(RG_E, RG_C);
             AddR(4);
             break;
 
         case OP_LD_E_D:
-            RG_E = RG_D;
+            op_ld(RG_E, RG_D);
             AddR(4);
             break;
 
         case OP_LD_E_E:
+            op_ld(RG_E, RG_E);
             AddR(4);
             break;
 
         case OP_LD_E_H:
-            RG_E = RG_H;
+            op_ld(RG_E, RG_H);
             AddR(4);
             break;
 
         case OP_LD_E_L:
-            RG_E = RG_L;
+            op_ld(RG_E, RG_L);
             AddR(4);
             break;
 
         case OP_LD_E_HLa:
-            RG_E = GetRAMbyte(HL2word());
+            op_ld(RG_E, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_E_A:
-            RG_E = RG_A;
+            op_ld(RG_E, RG_A);
             AddR(4);
             break;
 
         case OP_LD_H_B:
-            RG_H = RG_B;
+            op_ld(RG_H, RG_B);
             AddR(4);
             break;
 
         case OP_LD_H_C:
-            RG_H = RG_C;
+            op_ld(RG_H, RG_C);
             AddR(4);
             break;
 
         case OP_LD_H_D:
-            RG_H = RG_D;
+            op_ld(RG_H, RG_D);
             AddR(4);
             break;
 
         case OP_LD_H_E:
-            RG_H = RG_E;
+            op_ld(RG_H, RG_E);
             AddR(4);
             break;
 
         case OP_LD_H_H:
+            op_ld(RG_H, RG_H);
             AddR(4);
             break;
 
         case OP_LD_H_L:
-            RG_H = RG_L;
+            op_ld(RG_H, RG_L);
             AddR(4);
             break;
 
         case OP_LD_H_HLa:
-            RG_H = GetRAMbyte(HL2word());
+            op_ld(RG_H, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_H_A:
-            RG_H = RG_A;
+            op_ld(RG_H, RG_A);
             AddR(4);
             break;
 
         case OP_LD_L_B:
-            RG_L = RG_B;
+            op_ld(RG_L, RG_B);
             AddR(4);
             break;
 
         case OP_LD_L_C:
-            RG_L = RG_C;
+            op_ld(RG_L, RG_C);
             AddR(4);
             break;
 
         case OP_LD_L_D:
-            RG_L = RG_D;
+            op_ld(RG_L, RG_D);
             AddR(4);
             break;
 
         case OP_LD_L_E:
-            RG_L = RG_E;
+            op_ld(RG_L, RG_E);
             AddR(4);
             break;
 
         case OP_LD_L_H:
-            RG_L = RG_H;
+            op_ld(RG_L, RG_H);
             AddR(4);
             break;
 
         case OP_LD_L_L:
+            op_ld(RG_L, RG_L);
             AddR(4);
             break;
 
         case OP_LD_L_HLa:
-            RG_L = GetRAMbyte(HL2word());
+            op_ld(RG_L, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_L_A:
-            RG_L = RG_A;
+            op_ld(RG_L, RG_A);
             AddR(4);
             break;
 
         case OP_LD_HLa_B:
-            SetRAMbyte(HL2word(), RG_B);
+            op_ld(&RAM[RG_HL], RG_B);
             AddR(4);
             break;
 
         case OP_LD_HLa_C:
-            SetRAMbyte(HL2word(), RG_C);
+            op_ld(&RAM[RG_HL], RG_C);
             AddR(4);
             break;
 
         case OP_LD_HLa_D:
-            SetRAMbyte(HL2word(), RG_D);
+            op_ld(&RAM[RG_HL], RG_D);
             AddR(4);
             break;
 
         case OP_LD_HLa_E:
-            SetRAMbyte(HL2word(), RG_E);
+            op_ld(&RAM[RG_HL], RG_E);
             AddR(4);
             break;
 
         case OP_LD_HLa_H:
-            SetRAMbyte(HL2word(), RG_H);
+            op_ld(&RAM[RG_HL], RG_H);
             AddR(4);
             break;
 
         case OP_LD_HLa_L:
-            SetRAMbyte(HL2word(), RG_L);
+            op_ld(&RAM[RG_HL], RG_L);
             AddR(4);
             break;
 
         case OP_LD_HLa_A:
-            SetRAMbyte(HL2word(), RG_A);
+            op_ld(&RAM[RG_HL], RG_A);
             AddR(4);
             break;
 
@@ -448,347 +513,348 @@ void exec(void) {
             break;
 
         case OP_LD_A_B:
-            RG_A = RG_B;
+            op_ld(RG_A, RG_B);
             AddR(4);
             break;
 
         case OP_LD_A_C:
-            RG_A = RG_C;
+            op_ld(RG_A, RG_C);
             AddR(4);
             break;
 
         case OP_LD_A_D:
-            RG_A = RG_D;
+            op_ld(RG_A, RG_D);
             AddR(4);
             break;
 
         case OP_LD_A_E:
-            RG_A = RG_E;
+            op_ld(RG_A, RG_E);
             AddR(4);
             break;
 
         case OP_LD_A_H:
-            RG_A = RG_H;
+            op_ld(RG_A, RG_H);
             AddR(4);
             break;
 
         case OP_LD_A_L:
-            RG_A = RG_L;
+            op_ld(RG_A, RG_L);
             AddR(4);
             break;
 
         case OP_LD_A_HLa:
-            RG_A = GetRAMbyte(HL2word());
+            op_ld(RG_A, &RAM[RG_HL]);
             AddR(7);
             break;
 
         case OP_LD_A_A:
+            op_ld(RG_A, RG_A);
             AddR(4);
             break;
 
         case OP_ADD_A_B:
-            AddA(RG_B, 0);
+            op_add(RG_A, RG_B, 0);
             AddR(4);
             break;
 
         case OP_ADD_A_C:
-            AddA(RG_C, 0);
+            op_add(RG_A, RG_C, 0);
             AddR(4);
             break;
 
         case OP_ADD_A_D:
-            AddA(RG_D, 0);
+            op_add(RG_A, RG_D, 0);
             AddR(4);
             break;
 
         case OP_ADD_A_E:
-            AddA(RG_E, 0);
+            op_add(RG_A, RG_E, 0);
             AddR(4);
             break;
 
         case OP_ADD_A_H:
-            AddA(RG_H, 0);
+            op_add(RG_A, RG_H, 0);
             AddR(4);
             break;
 
         case OP_ADD_A_L:
-            AddA(RG_L, 0);
+            op_add(RG_A, RG_L, 0);
             AddR(4);
             break;
 
         case OP_ADD_A_HLa:
-            AddA(GetRAMbyte(HL2word()), 0);
+            op_add(RG_A, &RAM[RG_HL], 0);
             AddR(7);
             break;
 
         case OP_ADD_A_A:
-            AddA(RG_A, 0);
+            op_add(RG_A, RG_A, 0);
             AddR(4);
             break;
 
         case OP_ADC_A_B:
-            AddA(RG_B, 1);
+            op_add(RG_A, RG_B, 1);
             AddR(4);
             break;
 
         case OP_ADC_A_C:
-            AddA(RG_C, 1);
+            op_add(RG_A, RG_C, 1);
             AddR(4);
             break;
 
         case OP_ADC_A_D:
-            AddA(RG_D, 1);
+            op_add(RG_A, RG_D, 1);
             AddR(4);
             break;
 
         case OP_ADC_A_E:
-            AddA(RG_E, 1);
+            op_add(RG_A, RG_E, 1);
             AddR(4);
             break;
 
         case OP_ADC_A_H:
-            AddA(RG_H, 1);
+            op_add(RG_A, RG_H, 1);
             AddR(4);
             break;
 
         case OP_ADC_A_L:
-            AddA(RG_L, 1);
+            op_add(RG_A, RG_L, 1);
             AddR(4);
             break;
 
         case OP_ADC_A_HLa:
-            AddA(GetRAMbyte(HL2word()), 1);
+            op_add(RG_A, &RAM[RG_HL], 1);
             AddR(7);
             break;
 
         case OP_ADC_A_A:
-            AddA(RG_A, 1);
+            op_add(RG_A, RG_A, 1);
             AddR(4);
             break;
 
         case OP_SUB_A_B:
-            AddA(-1 * RG_B, 0);
+            op_sub(RG_A, RG_B, 0);
             AddR(4);
             break;
 
         case OP_SUB_A_C:
-            AddA(-1 * RG_C, 0);
+            op_sub(RG_A, RG_C, 0);
             AddR(4);
             break;
 
         case OP_SUB_A_D:
-            AddA(-1 * RG_D, 0);
+            op_sub(RG_A, RG_D, 0);
             AddR(4);
             break;
 
         case OP_SUB_A_E:
-            AddA(-1 * RG_E, 0);
+            op_sub(RG_A, RG_E, 0);
             AddR(4);
             break;
 
         case OP_SUB_A_H:
-            AddA(-1 * RG_H, 0);
+            op_sub(RG_A, RG_H, 0);
             AddR(4);
             break;
 
         case OP_SUB_A_L:
-            AddA(-1 * RG_L, 0);
+            op_sub(RG_A, RG_L, 0);
             AddR(4);
             break;
 
         case OP_SUB_A_HLa:
-            AddA(-1 * GetRAMbyte(HL2word()), 0);
+            op_sub(RG_A, &RAM[RG_HL], 0);
             AddR(7);
             break;
 
         case OP_SUB_A_A:
-            AddA(-1 * RG_A, 0);
+            op_sub(RG_A, RG_A, 0);
             AddR(4);
             break;
 
 
         case OP_SBC_A_B:
-            AddA(-1 * RG_B, 1);
+            op_sub(RG_A, RG_B, 1);
             AddR(4);
             break;
 
         case OP_SBC_A_C:
-            AddA(-1 * RG_C, 1);
+            op_sub(RG_A, RG_C, 1);
             AddR(4);
             break;
 
         case OP_SBC_A_D:
-            AddA(-1 * RG_D, 1);
+            op_sub(RG_A, RG_D, 1);
             AddR(4);
             break;
 
         case OP_SBC_A_E:
-            AddA(-1 * RG_E, 1);
+            op_sub(RG_A, RG_E, 1);
             AddR(4);
             break;
 
         case OP_SBC_A_H:
-            AddA(-1 * RG_H, 1);
+            op_sub(RG_A, RG_H, 1);
             AddR(4);
             break;
 
         case OP_SBC_A_L:
-            AddA(-1 * RG_L, 1);
+            op_sub(RG_A, RG_L, 1);
             AddR(4);
             break;
 
         case OP_SBC_A_HLa:
-            AddA(-1 * GetRAMbyte(HL2word()), 1);
+            op_sub(RG_A, &RAM[GetRAMword(RG_HL)], 1);
             AddR(7);
             break;
 
         case OP_SBC_A_A:
-            AddA(-1 * RG_A, 1);
+            op_sub(RG_A, RG_A, 1);
             AddR(4);
             break;
 
         case OP_AND_B:
-            RG_A &= RG_B;
+            *RG_A &= *RG_B;
             AddR(4);
             break;
 
         case OP_AND_C:
-            RG_A &= RG_C;
+            *RG_A &= *RG_C;
             AddR(4);
             break;
 
         case OP_AND_D:
-            RG_A &= RG_D;
+            *RG_A &= *RG_D;
             AddR(4);
             break;
 
         case OP_AND_E:
-            RG_A &= RG_E;
+            *RG_A &= *RG_E;
             AddR(4);
             break;
 
         case OP_AND_H:
-            RG_A &= RG_H;
+            *RG_A &= *RG_H;
             AddR(4);
             break;
 
         case OP_AND_L:
-            RG_A &= RG_L;
+            *RG_A &= *RG_L;
             AddR(4);
             break;
 
         case OP_AND_HLa:
-            RG_A &= GetRAMbyte(HL2word());
+            *RG_A &= GetRAMbyte(RG_HL);
             AddR(7);
             break;
 
         case OP_AND_A:
-            RG_A &= RG_A;
+            *RG_A &= *RG_A;
             AddR(4);
             break;
 
         case OP_XOR_B:
-            RG_A ^= RG_B;
+            *RG_A ^= *RG_B;
             AddR(4);
             break;
 
         case OP_XOR_C:
-            RG_A ^= RG_C;
+            *RG_A ^= *RG_C;
             AddR(4);
             break;
 
         case OP_XOR_D:
-            RG_A ^= RG_D;
+            *RG_A ^= *RG_D;
             AddR(4);
             break;
 
         case OP_XOR_E:
-            RG_A ^= RG_E;
+            *RG_A ^= *RG_E;
             AddR(4);
             break;
 
         case OP_XOR_H:
-            RG_A ^=  RG_H;
+            *RG_A ^=  *RG_H;
             AddR(4);
             break;
 
         case OP_XOR_L:
-            RG_A ^= RG_L;
+            *RG_A ^= *RG_L;
             AddR(4);
             break;
 
         case OP_XOR_HLa:
-            RG_A ^= GetRAMbyte(HL2word());
+            *RG_A ^= GetRAMbyte(RG_HL);
             AddR(7);
             break;
 
         case OP_XOR_A:
-            RG_A ^= RG_A;
+            *RG_A ^= *RG_A;
             AddR(4);
             break;
 
         case OP_OR_B:
-            RG_A |= RG_B;
+            *RG_A |= *RG_B;
             AddR(4);
             break;
 
         case OP_OR_C:
-            RG_A |= RG_B;
+            *RG_A |= *RG_B;
             AddR(4);
             break;
 
         case OP_OR_D:
-            RG_A |= RG_D;
+            *RG_A |= *RG_D;
             AddR(4);
             break;
 
         case OP_OR_E:
-            RG_A |= RG_E;
+            *RG_A |= *RG_E;
             AddR(4);
             break;
 
         case OP_OR_H:
-            RG_A |= RG_H;
+            *RG_A |= *RG_H;
             AddR(4);
             break;
 
         case OP_OR_L:
-            RG_A |= RG_L;
+            *RG_A |= *RG_L;
             AddR(4);
             break;
 
         case OP_OR_HLa:
-            RG_A |= GetRAMbyte(HL2word());
+            *RG_A |= GetRAMbyte(RG_HL);
             AddR(7);
             break;
 
         case OP_OR_A:
-            RG_A |= RG_A;
+            *RG_A |= *RG_A;
             AddR(4);
             break;
 
         case OP_ADD_A_N:
-            AddA(GetRAMbyte(GetPC(1)), 0);
+            op_add(RG_A, &RAM[GetPC(1)], 0);
             AddR(7);
             break;
 
         case OP_ADC_A_N:
-            AddA(GetRAMbyte(GetPC(1)), 1);
+            op_add(RG_A, &RAM[GetPC(1)], 1);
             AddR(7);
             break;
 
         case OP_AND_N:
-            RG_A &= GetRAMbyte(GetPC(1));
+            *RG_A &= GetRAMbyte(GetPC(1));
             AddR(7);
             break;
 
         case OP_XOR_N:
-            RG_A ^= GetRAMbyte(GetPC(1));
+            *RG_A ^= GetRAMbyte(GetPC(1));
             AddR(7);
             break;
 
         case OP_OR_N:
-            RG_A |= GetRAMbyte(GetPC(1));
+            *RG_A |= GetRAMbyte(GetPC(1));
             AddR(7);
             break;
 

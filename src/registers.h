@@ -13,25 +13,21 @@
 #include "common.h"
 #include "memory.h"
 
-/* main register set */
-byte RG_A; /* accumulator */
-byte RG_B; /* general purpose */
-byte RG_C; /* general purpose */
-byte RG_D; /* general purpose */
-byte RG_E; /* general purpose */
-byte RG_F; /* flags */
-byte RG_H; /* 16 bit - high order */
-byte RG_L; /* 16 bit - low order */
+/* 16 bit registers */
+word RG_AF;
+word RG_BC;
+word RG_DE;
+word RG_HL;
 
-/* alternate register set */
-byte RG_A_; /* accumulator */
-byte RG_B_; /* general purpose */
-byte RG_C_; /* general purpose */
-byte RG_D_; /* general purpose */
-byte RG_E_; /* general purpose */
-byte RG_F_; /* flags */
-byte RG_H_; /* 16 bit - high order */
-byte RG_L_; /* 16 bit - low order */
+/* main register set */
+byte* RG_A = (byte*)&RG_AF;     /* accumulator */
+byte* RG_B = (byte*)&RG_BC;     /* general purpose */
+byte* RG_C = (byte*)&RG_BC + 1; /* general purpose */
+byte* RG_D = (byte*)&RG_DE;     /* general purpose */
+byte* RG_E = (byte*)&RG_DE + 1; /* general purpose */
+byte* RG_F = (byte*)&RG_AF + 1; /* flags */
+byte* RG_H = (byte*)&RG_HL;     /* 16 bit - high order */
+byte* RG_L = (byte*)&RG_HL + 1; /* 16 bit - low order */
 
 /* special registers */
 byte RG_I; /* interrupt vector */
