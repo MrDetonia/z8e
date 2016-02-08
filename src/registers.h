@@ -57,19 +57,8 @@ byte getFlag(const byte flag);
 /* set flag */
 void setFlag(const byte flag, byte val);
 
-/* functions to get multiple registers as words */
-word BC2word(void);
-word DE2word(void);
-word HL2word(void);
-
-/* functions to set 16 bit registers */
-void SetBC(word nn);
-void SetDE(word nn);
-void SetHL(word nn);
-
 /* common register increment/addition functions */
 void AddR(byte n);
-void AddA(byte n, int carry);
 word GetPC(word inc);
 void AddPC(word nn);
 
