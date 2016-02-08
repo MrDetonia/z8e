@@ -145,17 +145,17 @@ void exec(void) {
             break;
 
         case OP_INC_BC:
-            op_add16(&RG_BC, 1, 0);
+            RG_BC++;
             AddR(6);
             break;
 
         case OP_INC_B:
-            op_add(RG_B, 1, 0);
+            *RG_B++;
             AddR(4);
             break;
 
         case OP_DEC_B:
-            op_sub(RG_B, 1, 0);
+            *RG_B--;
             AddR(4);
             break;
 
@@ -175,17 +175,17 @@ void exec(void) {
             break;
 
         case OP_DEC_BC:
-            op_sub16(&RG_BC, 1, 0);
+            RG_BC--;
             AddR(7);
             break;
 
         case OP_INC_C:
-            op_add(RG_C, 1, 0);
+            *RG_C++;
             AddR(4);
             break;
 
         case OP_DEC_C:
-            op_sub(RG_C, 1, 0);
+            *RG_C--;
             AddR(4);
             break;
 
@@ -205,17 +205,17 @@ void exec(void) {
             break;
 
         case OP_INC_DE:
-            op_add16(&RG_DE, 1, 0);
+            RG_DE++;
             AddR(6);
             break;
 
         case OP_INC_D:
-            op_add(RG_D, 1, 0);
+            *RG_D++;
             AddR(4);
             break;
 
         case OP_DEC_D:
-            op_sub(RG_D, 1, 0);
+            *RG_D--;
             AddR(4);
             break;
 
@@ -235,17 +235,17 @@ void exec(void) {
             break;
 
         case OP_DEC_DE:
-            op_sub16(&RG_DE, 1, 0);
+            RG_DE--;
             AddR(7);
             break;
 
         case OP_INC_E:
-            op_add(RG_E, 1, 0);
+            *RG_E++;
             AddR(4);
             break;
 
         case OP_DEC_E:
-            op_sub(RG_E, 1, 0);
+            *RG_E--;
             AddR(4);
             break;
 
@@ -265,17 +265,17 @@ void exec(void) {
             break;
 
         case OP_INC_HL:
-            op_add16(&RG_HL, 1, 0);
+            RG_HL++;
             AddR(7);
             break;
 
         case OP_INC_H:
-            op_add(RG_H, 1, 0);
+            *RG_H++;
             AddR(4);
             break;
 
         case OP_DEC_H:
-            op_sub(RG_H, 1, 0);
+            *RG_H--;
             AddR(4);
             break;
 
@@ -295,17 +295,17 @@ void exec(void) {
             break;
 
         case OP_DEC_HL:
-            op_sub16(&RG_HL, 1, 0);
+            RG_HL--;
             AddR(7);
             break;
 
         case OP_INC_L:
-            op_add(RG_L, 1, 0);
+            *RG_L++;
             AddR(4);
             break;
 
         case OP_DEC_L:
-            op_sub(RG_L, 1, 0);
+            *RG_L--;
             AddR(4);
             break;
 
@@ -325,17 +325,17 @@ void exec(void) {
             break;
 
         case OP_INC_SP:
-            op_add16(&RG_SP, 1, 0);
+            RG_SP++;
             AddR(7);
             break;
 
         case OP_INC_HLa:
-            op_add(&RAM[RG_HL], 1, 0);
+            RAM[RG_HL]++;
             AddR(11);
             break;
 
         case OP_DEC_HLa:
-            op_sub(&RAM[RG_HL], 1, 0);
+            RAM[RG_HL]--;
             AddR(11);
             break;
 
@@ -355,17 +355,17 @@ void exec(void) {
             break;
 
         case OP_DEC_SP:
-            op_sub16(&RG_SP, 1, 0);
+            RG_SP--;
             AddR(7);
             break;
 
         case OP_INC_A:
-            op_add(RG_A, 1, 0);
+            *RG_A++;
             AddR(4);
             break;
 
         case OP_DEC_A:
-            op_sub(RG_A, 1, 0);
+            *RG_A--;
             AddR(4);
             break;
 
