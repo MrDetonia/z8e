@@ -224,6 +224,11 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_JR_N:
+            RG_PC += GetRAMword(GetPC(1));
+            AddR(12);
+            break;
+
         case OP_ADD_HL_DE:
             op_add16(&RG_HL, RG_DE, 0);
             AddR(11);
@@ -252,6 +257,14 @@ void exec(void) {
         case OP_LD_E_N:
             op_ld(RG_E, RAM[GetPC(1)]);
             AddR(7);
+            break;
+
+        case OP_JR_NZ_N:
+            if(getFlag(FLAG_Z)) {
+                RG_PC += GetRAMword(GetPC(1));
+                AddR(12);
+            }
+            else AddR(7);
             break;
 
         case OP_LD_HL_NN:
@@ -284,6 +297,14 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_JR_Z_N:
+            if(getFlag(FLAG_Z)) {
+                RG_PC += GetRAMword(GetPC(1));
+                AddR(12);
+            }
+            else AddR(7);
+            break;
+
         case OP_ADD_HL_HL:
             op_add16(&RG_HL, RG_HL, 0);
             AddR(11);
@@ -314,6 +335,14 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_JR_NC_N:
+            if(!getFlag(FLAG_C)) {
+                RG_PC += GetRAMword(GetPC(1));
+                AddR(12);
+            }
+            else AddR(7);
+            break;
+
         case OP_LD_SP_NN:
             op_ld16(&RG_SP, GetRAMword(GetPC(2)));
             AddR(10);
@@ -342,6 +371,14 @@ void exec(void) {
         case OP_LD_HLa_N:
             op_ld(&RAM[RG_HL], RAM[GetPC(1)]);
             AddR(10);
+            break;
+
+        case OP_JR_C_N:
+            if(getFlag(FLAG_C)) {
+                RG_PC += GetRAMword(GetPC(1));
+                AddR(12);
+            }
+            else AddR(7);
             break;
 
         case OP_ADD_HL_SP:
@@ -973,9 +1010,30 @@ void exec(void) {
             AddR(4);
             break;
 
+        case OP_JP_NZ_NN:
+            if(!getFlag(FLAG_Z)) {
+                RG_PC = GetRAMword(GetPC(2));
+                AddR(12);
+            }
+            else AddR(7);
+            break;
+
+        case OP_JP_NN:
+            RG_PC = GetRAMword(GetPC(2));
+            AddR(4);
+            break;
+
         case OP_ADD_A_N:
             op_add(RG_A, RAM[GetPC(1)], 0);
             AddR(7);
+            break;
+
+        case OP_JP_Z_NN:
+            if(getFlag(FLAG_Z)) {
+                RG_PC = GetRAMword(GetPC(2));
+                AddR(12);
+            }
+            else AddR(7);
             break;
 
         case OP_ADC_A_N:
@@ -983,9 +1041,44 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_JP_NC_NN:
+            if(!getFlag(FLAG_C)) {
+                RG_PC = GetRAMword(GetPC(2));
+                AddR(12);
+            }
+            else AddR(7);
+            break;
+
+        case OP_JP_C_NN:
+            if(getFlag(FLAG_C)) {
+                RG_PC = GetRAMword(GetPC(2));
+                AddR(12);
+            }
+            else AddR(7);
+            break;
+
+        case OP_JP_PO_NN:
+            if(getFlag(FLAG_PV)) {
+                RG_PC = GetRAMword(GetPC(2));
+            }
+            AddR(10);
+            break;
+
         case OP_AND_N:
             *RG_A &= RAM[GetPC(1)];
             AddR(7);
+            break;
+
+        case OP_JP_HLa:
+            RG_PC = RG_HL;
+            AddR(7);
+            break;
+
+        case OP_JP_PE_NN:
+            if(!getFlag(FLAG_PV)) {
+                RG_PC = GetRAMword(GetPC(2));
+            }
+            AddR(10);
             break;
 
         case OP_XOR_N:
@@ -993,9 +1086,23 @@ void exec(void) {
             AddR(7);
             break;
 
+        case OP_JP_P_NN:
+            if(!getFlag(FLAG_S)) {
+                RG_PC = GetRAMword(GetPC(2));
+            }
+            AddR(10);
+            break;
+
         case OP_OR_N:
             *RG_A |= RAM[GetPC(1)];
             AddR(7);
+            break;
+
+        case OP_JP_M_NN:
+            if(getFlag(FLAG_S)) {
+                RG_PC = GetRAMword(GetPC(2));
+            }
+            AddR(10);
             break;
 
         default:
